@@ -1,0 +1,25 @@
+name: Retrieve AWS Secret
+
+on: [push]
+
+jobs:
+  get-secret:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Retrieve Secret from AWS Secrets Manager
+        run: |
+          SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id mysecretname --query SecretString --output text)
+          echo "SECRET_VALUE=${SECRET_VALUE}" >> $GITHUB_ENV
+
+      - name: Use the Secret
+        run: echo "Secret Retrieved Successfully!"
